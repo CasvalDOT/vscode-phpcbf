@@ -170,7 +170,6 @@ class PHPCBF {
                 */
         switch (code) {
           case 0:
-            break
           case 1:
           case 2:
             const fixed = fs.readFileSync(fileName, 'utf-8')
