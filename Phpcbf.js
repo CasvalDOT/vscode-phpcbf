@@ -230,12 +230,7 @@ class PHPCBF {
     // Save content of the document
     // into a temp file. Then phpcbf
     // will work on this file
-    let fileName
-    try {
-      fileName = this.createTempFile(text)
-    } catch (e) {
-      throw new Error(e.message)
-    }
+    const fileName = this.createTempFile(text)
 
     // Get executable arguments
     const execArguments = this.concatExecutableArguments(fileName)
