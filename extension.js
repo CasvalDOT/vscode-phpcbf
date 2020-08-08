@@ -108,6 +108,30 @@ function onDidChangeConfiguration () {
   phpcbf.setOptions(getPHPCBFConfiguration())
 }
 
+async function provideDocumentFormattingEdits (document) {
+  const originalText = document.getText()
+  const lastLine = document.lineAt(document.lineCount - 1)
+  const range = new Range(new Position(0, 0), lastLine.range.end)
+
+  try {
+    phpcbf.setStandard(document.uri.fsPath)
+  } catch (err) {
+    print('ERROR', err.message)
+    return false
+  }
+
+  try {
+    const fixedText = await phpcbf.format(originalText)
+    if (fixedText !== '' && fixedText !== originalText) {
+      return [new vscode.TextEdit(range, fixedText)]
+    }
+  } catch (err) {
+    print('ERROR', err.message)
+    window.showErrorMessage(err.message)
+    return false
+  }
+}
+
 // EXPORT
 exports.activate = context => {
   // 1. Add handler on saving
@@ -132,29 +156,7 @@ exports.activate = context => {
   if (phpcbf.documentFormattingProvider) {
     context.subscriptions.push(
       languages.registerDocumentFormattingEditProvider('php', {
-        provideDocumentFormattingEdits: async document => {
-          const originalText = document.getText()
-          const lastLine = document.lineAt(document.lineCount - 1)
-          const range = new Range(new Position(0, 0), lastLine.range.end)
-
-          try {
-            phpcbf.setStandard(document.uri.fsPath)
-          } catch (err) {
-            print('ERROR', err.message)
-            return false
-          }
-
-          try {
-            const fixedText = await phpcbf.format(originalText)
-            if (fixedText !== '' && fixedText !== originalText) {
-              return [new vscode.TextEdit(range, fixedText)]
-            }
-          } catch (err) {
-            print('ERROR', err.message)
-            window.showErrorMessage(err.message)
-            return false
-          }
-        }
+        provideDocumentFormattingEdits
       })
     )
   }
