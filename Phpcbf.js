@@ -36,7 +36,8 @@ class PHPCBF {
    * @param {string} path
    * @returns {string}
    * */
-  resolveExecutablePath (path) {
+  resolveExecutablePath (options) {
+    let path = options.executablePath
     if (path.startsWith('{{workspaceFolder}}')) {
       path = path.replace(/{{workspaceFolder}}/, options.workspace)
     }
@@ -57,7 +58,7 @@ class PHPCBF {
     this.enable = options.enable
     this.configFilenames = options.config_filenames || PHPCBF_CONFIG_FILENAMES
     this.onsave = options.onsave
-    this.executablePath = this.resolveExecutablePath(options.executablePath)
+    this.executablePath = this.resolveExecutablePath(options)
     this.configSearch = options.configSearch
     this.standard = options.standard
     this.documentFormattingProvider = options.documentFormattingProvider
