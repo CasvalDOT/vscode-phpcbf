@@ -234,10 +234,10 @@ class PHPCBF {
 
     if (this.debug) {
       exec.stdout.on('data', buffer => {
-        this.onError(`[stdout] ${buffer.toString()}`)
+        this.onDebug(`[stdout] ${buffer.toString()}`)
       })
       exec.stderr.on('data', buffer => {
-        this.onDebug(`[stderr] ${buffer.toString()}`)
+        this.onError(`[stderr] ${buffer.toString()}`)
       })
     }
 
