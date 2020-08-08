@@ -31,39 +31,36 @@ class PHPCBF {
   }
 
   /**
+   * Resolve executable path
+   *
+   * @param {string} path
+   * @returns {string}
+   * */
+  resolveExecutablePath (path) {
+    if (path.startsWith('{{workspaceFolder}}')) {
+      path = path.replace(/{{workspaceFolder}}/, options.workspace)
+    }
+
+    if (path.startsWith('~')) {
+      path = path.replace(/^~\//, os.homedir() + '/')
+    }
+
+    return path
+  }
+
+  /**
    * Set options to use
    *
    * @param {object} options
    * */
   setOptions (options = {}) {
+    this.enable = options.enable
     this.configFilenames = options.config_filenames || PHPCBF_CONFIG_FILENAMES
-
-    if (options.enable !== true) {
-      return
-    }
-
     this.onsave = options.onsave
-    this.executablePath = options.executablePath
+    this.executablePath = this.resolveExecutablePath(options.executablePath)
     this.configSearch = options.configSearch
-
-    if (this.executablePath.startsWith('{{workspaceFolder}}')) {
-      this.executablePath = this.executablePath.replace(
-        /{{workspaceFolder}}/,
-        options.workspace
-      )
-    }
-
-    if (this.executablePath.startsWith('~')) {
-      this.executablePath = this.executablePath.replace(
-        /^~\//,
-        os.homedir() + '/'
-      )
-    }
-
     this.standard = options.standard
-
     this.documentFormattingProvider = options.documentFormattingProvider
-
     this.debug = options.debug
   }
 

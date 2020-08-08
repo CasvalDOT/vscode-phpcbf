@@ -108,7 +108,16 @@ function onDidChangeConfiguration () {
   phpcbf.setOptions(getPHPCBFConfiguration())
 }
 
+/**
+ * Event handler when formatting
+ *
+ * @param {object} document
+ * @return {any}
+ * */
 async function provideDocumentFormattingEdits (document) {
+  // If phpcbf is disabled stop the execution
+  if (!phpcbf.enable) return
+
   const originalText = document.getText()
   const lastLine = document.lineAt(document.lineCount - 1)
   const range = new Range(new Position(0, 0), lastLine.range.end)
