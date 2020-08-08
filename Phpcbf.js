@@ -4,7 +4,11 @@ const os = require('os')
 const cp = require('child_process')
 const TmpDir = os.tmpdir()
 
-const { PHPCBF_CONFIG_FILENAMES, PHPCBF_ERRORS } = require('./config')
+const {
+  PHPCBF_CONFIG_FILENAMES,
+  PHPCBF_ERRORS,
+  PHPCBF_NO_FIXABLE_ERRORS
+} = require('./config')
 
 // Errors
 const {
@@ -186,7 +190,7 @@ class PHPCBF {
         switch (code) {
           // code 0 means no fixes found
           // Code 1 and 2 means some fix are applied
-          case 0:
+          case PHPCBF_NO_FIXABLE_ERRORS:
           case 1:
           case 2:
             return resolve(code)
@@ -239,7 +243,7 @@ class PHPCBF {
     let outputText = ''
     try {
       const code = await this.executeFormat(execArguments)
-      if (code > 0) {
+      if (code > PHPCBF_NO_FIXABLE_ERRORS) {
         outputText = fs.readFileSync(fileName, 'utf-8')
       }
     } catch (e) {
