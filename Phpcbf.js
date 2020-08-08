@@ -162,26 +162,7 @@ class PHPCBF {
     return fileName
   }
 
-  /**
-   * Format the document
-   *
-   * @param {string} text
-   * @returns {Promise <string>}
-   * */
-  format (text) {
-    // Save content of the document
-    // into a temp file. Then phpcbf
-    // will work on this file
-    let fileName
-    try {
-      fileName = this.createTempFile(text)
-    } catch (e) {
-      throw new Error(e.message)
-    }
-
-    // Get executable arguments
-    const execArguments = this.concatExecutableArguments(fileName)
-
+  executeFormat (execArguments) {
     // In debug mode print the command
     if (this.debug) {
       this.onDebug(`${this.executablePath} ${execArguments}`)
@@ -190,51 +171,31 @@ class PHPCBF {
     // Spawn PHPCBF instance
     const exec = cp.spawn(this.executablePath, execArguments)
 
+    // Exec process handler
     const promise = new Promise((resolve, reject) => {
       exec.on('error', err => {
         return reject(err.code === 'ENOENT' ? ERR_PHPCBF_ENOENT : err)
       })
 
       exec.on('exit', code => {
-        let fixedText = ''
         switch (code) {
           // code 0 means no fixes found
-          case 0:
-            resolve(fixedText)
-            break
           // Code 1 and 2 means some fix are applied
+          case 0:
           case 1:
           case 2:
-            fixedText = fs.readFileSync(fileName, 'utf-8')
-            if (fixedText.length === 0) {
-              reject(ERR_ZERO_FIXING_CONTENT_LENGTH)
-            } else {
-              resolve(fixedText)
-            }
-            break
+            return resolve(code)
           case 3:
-            reject(ERR_PHPCBF_EXIT_CODE_3)
-            break
+            return reject(ERR_PHPCBF_EXIT_CODE_3)
           case 16:
-            reject(ERR_PHPCBF_EXIT_CODE_16)
-            break
+            return reject(ERR_PHPCBF_EXIT_CODE_16)
           case 32:
-            reject(ERR_PHPCBF_EXIT_CODE_32)
-            break
+            return reject(ERR_PHPCBF_EXIT_CODE_32)
           case 64:
-            reject(ERR_PHPCBF_EXIT_CODE_64)
-            break
+            return reject(ERR_PHPCBF_EXIT_CODE_64)
           default:
-            reject(ERR_PHPCBF_EXIT_CODE_UNDEFINED)
-            break
+            return reject(ERR_PHPCBF_EXIT_CODE_UNDEFINED)
         }
-
-        // Remove temp file
-        fs.unlink(fileName, function (err) {
-          if (err) {
-            return reject(ERR_ON_DELETING_TEMP_FILE)
-          }
-        })
       })
     })
 
@@ -248,6 +209,45 @@ class PHPCBF {
     }
 
     return promise
+  }
+
+  /**
+   * Format the document
+   *
+   * @param {string} text
+   * @returns {Promise <string>}
+   * */
+  async format (text) {
+    // Save content of the document
+    // into a temp file. Then phpcbf
+    // will work on this file
+    let fileName
+    try {
+      fileName = this.createTempFile(text)
+    } catch (e) {
+      throw new Error(e.message)
+    }
+
+    // Get executable arguments
+    const execArguments = this.concatExecutableArguments(fileName)
+
+    let outputText = ''
+    try {
+      const code = await this.executeFormat(execArguments)
+      if (code > 0) {
+        outputText = fs.readFileSync(fileName, 'utf-8')
+      }
+    } catch (e) {
+      throw new Error(e.message)
+    } finally {
+      fs.unlink(fileName, function (err) {
+        if (err) {
+          throw new Error(ERR_ON_DELETING_TEMP_FILE)
+        }
+      })
+    }
+
+    return outputText
   }
 }
 
