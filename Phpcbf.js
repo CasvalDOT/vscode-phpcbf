@@ -88,7 +88,7 @@ class PHPCBF {
    * @param {string} documentURI The current file
    * */
   setStandard (documentURI) {
-    if (!documentURIi || !this.configSearch) return
+    if (!documentURI || !this.configSearch) return
 
     // If configSearch attribute is set to true,
     // standard used by phpcbf will be replaced by custom config file
