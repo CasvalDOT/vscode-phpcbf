@@ -2,7 +2,7 @@
 
 const vscode = require('vscode')
 const PHPCBF = require('./Phpcbf')
-const VSCODE_COMMAND = 'phpcbf-soderlind'
+const VSCODE_COMMAND = 'phpcbf-heply'
 
 const phpcbf = new PHPCBF()
 const { commands, workspace, window, languages, Range, Position } = vscode
