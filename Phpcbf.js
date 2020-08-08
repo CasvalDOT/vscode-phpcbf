@@ -246,6 +246,7 @@ class PHPCBF {
     } catch (e) {
       throw new Error(e.message)
     } finally {
+      // Remove temp file
       fs.unlink(fileName, function (err) {
         if (err) {
           throw new Error(ERR_ON_DELETING_TEMP_FILE)
