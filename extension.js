@@ -2,10 +2,36 @@
 
 const vscode = require('vscode')
 const PHPCBF = require('./Phpcbf')
-const VSCODE_COMMAND = 'phpcbf-heply'
+const { PHPCBF_VSCODE_COMMAND } = require('./config')
 
-const phpcbf = new PHPCBF()
 const { commands, workspace, window, languages, Range, Position } = vscode
+
+const phpcbf = new PHPCBF(getPHPCBFConfiguration())
+
+/**
+ * Get PHPCBF configuration
+ *
+ * @returns {object}
+ * */
+function getPHPCBFConfiguration () {
+  const config = workspace.getConfiguration(
+    'phpcbf',
+    window.activeTextEditor.document.uri
+  )
+
+  return {
+    debug: config.get('debug', false),
+    documentFormattingProvider: config.get('documentFormattingProvider', true),
+    standard: config.get('standard', null),
+    enable: config.get('enable'),
+    onsave: config.get('onsave'),
+    executablePath: config.get(
+      'executablePath',
+      process.platform === 'win32' ? 'php-cbf.bat' : 'phpcbf'
+    ),
+    configSearch: config.get('configSearch', false)
+  }
+}
 
 /**
  * Check if current document is a php file
@@ -58,7 +84,7 @@ function registerTextEditorCommand (event) {
  * Event handler when vscode configuration changes
  * */
 function onDidChangeConfiguration () {
-  phpcbf.loadSettings()
+  phpcbf.setOptions(getPHPCBFConfiguration())
 }
 
 // EXPORT
@@ -69,7 +95,7 @@ exports.activate = context => {
 
   context.subscriptions.push(
     commands.registerTextEditorCommand(
-      VSCODE_COMMAND,
+      PHPCBF_VSCODE_COMMAND,
       registerTextEditorCommand
     )
   )
@@ -86,15 +112,22 @@ exports.activate = context => {
           const lastLine = document.lineAt(document.lineCount - 1)
           const range = new Range(new Position(0, 0), lastLine.range.end)
 
-          let output
           try {
-            output = phpcbf.format(document)
+            phpcbf.setStandard(document.uri.fsPath)
           } catch (err) {
-            console.error(err.message)
+            console.error('PHPCBF', 'Set Standard', err.message)
+            return false
           }
 
-          if (output !== originalText) {
-            return [new vscode.TextEdit(range, output)]
+          try {
+            const fixedText = await phpcbf.format(originalText)
+            if (fixedText !== '' && fixedText !== originalText) {
+              return [new vscode.TextEdit(range, fixedText)]
+            }
+          } catch (err) {
+            console.error('PHPCBF', 'Format', err.message)
+            window.showErrorMessage(err.message)
+            return false
           }
         }
       })
