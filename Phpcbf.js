@@ -28,8 +28,9 @@ class PHPCBF {
   }
 
   /**
-   * Load workspace settings
+   * Set options to use
    *
+   * @param {object} options
    * */
   setOptions (options = {}) {
     this.configFilenames = options.config_filenames || PHPCBF_CONFIG_FILENAMES
@@ -64,7 +65,11 @@ class PHPCBF {
   }
 
   /**
-   * Get arguments
+   * Concatenate arguments to use
+   * for execute phpcbf binary
+   *
+   * @param {string} fileName
+   * @returns {Array <string>}
    * */
   concatExecutableArguments (fileName) {
     const args = [
@@ -152,6 +157,9 @@ class PHPCBF {
 
   /**
    * Format the document
+   *
+   * @param {string} text
+   * @returns {Promise <string>}
    * */
   async format (text) {
     if (this.debug) {
