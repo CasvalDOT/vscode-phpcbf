@@ -14,12 +14,14 @@ const phpcbf = new PHPCBF(getPHPCBFConfiguration())
  * @returns {object}
  * */
 function getPHPCBFConfiguration () {
-  const config = workspace.getConfiguration(
-    'phpcbf',
-    window.activeTextEditor.document.uri
-  )
+  const documentURI = window.activeTextEditor.document.uri
+
+  const config = workspace.getConfiguration('phpcbf', documentURI)
+
+  const workspaceFolder = workspace.getWorkspaceFolder(documentURI)
 
   return {
+    workspace: workspaceFolder,
     debug: config.get('debug', false),
     documentFormattingProvider: config.get('documentFormattingProvider', true),
     standard: config.get('standard', null),
