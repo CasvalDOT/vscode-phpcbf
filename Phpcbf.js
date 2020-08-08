@@ -162,6 +162,12 @@ class PHPCBF {
     return fileName
   }
 
+  /**
+   * Execute the fix command
+   *
+   * @param {Array <string>} execArguments The argumnets uto use with the command
+   * @returns {Promise <number>} The output code
+   * */
   executeFormat (execArguments) {
     // In debug mode print the command
     if (this.debug) {
