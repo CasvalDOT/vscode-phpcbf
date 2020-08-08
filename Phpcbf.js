@@ -88,7 +88,7 @@ class PHPCBF {
    * @param {string} documentURI The current file
    * */
   setStandard (documentURI) {
-    if (!documentURI || !this.configSearch) return
+    if (!documentURIi || !this.configSearch) return
 
     // If configSearch attribute is set to true,
     // standard used by phpcbf will be replaced by custom config file
@@ -109,24 +109,33 @@ class PHPCBF {
    * */
   searchConfigFiles (documentURI) {
     const folders = documentURI.split(path.sep)
+
+    // Remove latest element because
+    // the file is not a folder
     folders.pop()
 
     while (folders.length) {
       const currentFolder = folders.join(path.sep)
+
+      // Remove latest element
+      folders.pop()
+
+      // if current folder is empty skip it
+      if (!currentFolder) continue
+
       let matchs = []
       try {
         matchs = fs.readdirSync(currentFolder).filter(a => {
           return this.configFilenames.indexOf(a) >= 0
         })
       } catch (e) {
-        /* handle error */
+        this.onError(`${currentFolder} - ${e.message}`)
+        continue
       }
 
       if (matchs.length > 0) {
         return path.join(currentFolder, matchs[0])
       }
-
-      folders.pop()
     }
 
     return ''
@@ -191,9 +200,11 @@ class PHPCBF {
       exec.on('exit', code => {
         let fixedText = ''
         switch (code) {
+          // code 0 means no fixes found
           case 0:
             resolve(fixedText)
             break
+          // Code 1 and 2 means some fix are applied
           case 1:
           case 2:
             fixedText = fs.readFileSync(fileName, 'utf-8')
