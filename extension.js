@@ -34,18 +34,31 @@ function isFormatOnSaveEnabled () {
   )
 }
 
+/**
+ * Event handler when saving document
+ *
+ * @param {object} event
+ * */
 function onWillSaveTextDocument (event) {
   if (isPhp(event) && !isFormatOnSaveEnabled() && phpcbf.onsave) {
     event.waitUntil(commands.executeCommand('editor.action.formatDocument'))
   }
 }
 
+/**
+ * Event handler when a command is registered
+ *
+ * @param {object} event
+ * */
 function registerTextEditorCommand (event) {
   if (isPhp(event)) {
     commands.executeCommand('editor.action.formatDocument')
   }
 }
 
+/**
+ * Event handler when vscode configuration changes
+ * */
 function onDidChangeConfiguration () {
   phpcbf.loadSettings()
 }
