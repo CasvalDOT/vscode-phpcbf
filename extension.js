@@ -96,10 +96,12 @@ function onDidChangeConfiguration () {
 
 // EXPORT
 exports.activate = context => {
+  // 1. Add handler on saving
   context.subscriptions.push(
     workspace.onWillSaveTextDocument(onWillSaveTextDocument)
   )
 
+  // 2. Register command
   context.subscriptions.push(
     commands.registerTextEditorCommand(
       PHPCBF_VSCODE_COMMAND,
@@ -107,10 +109,12 @@ exports.activate = context => {
     )
   )
 
+  // 3. Add handler when configuration change
   context.subscriptions.push(
     workspace.onDidChangeConfiguration(onDidChangeConfiguration)
   )
 
+  // 4. Handler on formatting
   if (phpcbf.documentFormattingProvider) {
     context.subscriptions.push(
       languages.registerDocumentFormattingEditProvider('php', {
