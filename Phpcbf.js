@@ -24,6 +24,9 @@ const {
  * */
 class PHPCBF {
   constructor (options = {}) {
+    const fakeCallBack = () => true
+    this.onError = options.onError || fakeCallBack
+    this.onDebug = options.onDebug || fakeCallBack
     this.setOptions(options)
   }
 
@@ -162,9 +165,6 @@ class PHPCBF {
    * @returns {Promise <string>}
    * */
   async format (text) {
-    if (this.debug) {
-      console.time('phpcbf')
-    }
     // Save content of the document
     // into a temp file. Then phpcbf
     // will work on this file
@@ -177,6 +177,11 @@ class PHPCBF {
 
     // Get executable arguments
     const execArguments = this.concatExecutableArguments(fileName)
+
+    // In debug mode print the command
+    if (this.debug) {
+      this.onDebug(`${this.executablePath} ${execArguments}`)
+    }
 
     // Spawn PHPCBF instance
     const exec = cp.spawn(this.executablePath, execArguments)
@@ -229,13 +234,10 @@ class PHPCBF {
 
     if (this.debug) {
       exec.stdout.on('data', buffer => {
-        console.debug('PHPCBF', 'DEBUG', 'LOG', buffer.toString())
+        this.onError(`[stdout] ${buffer.toString()}`)
       })
       exec.stderr.on('data', buffer => {
-        console.debug('PHPCBF', 'DEBUG', 'ERR', buffer.toString())
-      })
-      exec.on('close', () => {
-        console.timeEnd('phpcbf')
+        this.onDebug(`[stderr] ${buffer.toString()}`)
       })
     }
 

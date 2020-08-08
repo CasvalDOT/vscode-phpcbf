@@ -6,7 +6,21 @@ const { PHPCBF_VSCODE_COMMAND } = require('./config')
 
 const { commands, workspace, window, languages, Range, Position } = vscode
 
-const phpcbf = new PHPCBF(getPHPCBFConfiguration())
+const outputChannel = window.createOutputChannel('phpcbf')
+
+function print (level = 'LOG', message) {
+  outputChannel.appendLine(`PHPCBF: ${level} ${message}`)
+}
+
+const phpcbf = new PHPCBF({
+  ...getPHPCBFConfiguration(),
+  onError: message => {
+    print('ERROR', message)
+  },
+  onDebug: message => {
+    print('DEBUG', message)
+  }
+})
 
 /**
  * Get PHPCBF configuration
@@ -126,7 +140,7 @@ exports.activate = context => {
           try {
             phpcbf.setStandard(document.uri.fsPath)
           } catch (err) {
-            console.error('PHPCBF', 'Set Standard', err.message)
+            print('ERROR', err.message)
             return false
           }
 
@@ -136,7 +150,7 @@ exports.activate = context => {
               return [new vscode.TextEdit(range, fixedText)]
             }
           } catch (err) {
-            console.error('PHPCBF', 'Format', err.message)
+            print('ERROR', err.message)
             window.showErrorMessage(err.message)
             return false
           }
