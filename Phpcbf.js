@@ -88,7 +88,7 @@ class PHPCBF {
 
   /**
    * Search for custom fixers files.
-   * This method start scanning from current file folder to root folder
+   * This method start scanning from the current file folder to root folder
    * If an allowed configuration file is found, it return the configuration file
    * path
    *
@@ -148,7 +148,7 @@ class PHPCBF {
    * */
   async format (text) {
     // Save content of the document
-    // into a temp file. Next phpcbf
+    // into a temp file. Then phpcbf
     // will work on this file
     let fileName
     try {
