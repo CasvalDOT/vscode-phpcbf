@@ -48,6 +48,7 @@ class PHPCBF {
         options.workspace
       )
     }
+
     if (this.executablePath.startsWith('~')) {
       this.executablePath = this.executablePath.replace(
         /^~\//,
@@ -153,6 +154,9 @@ class PHPCBF {
    * Format the document
    * */
   async format (text) {
+    if (this.debug) {
+      console.time('phpcbf')
+    }
     // Save content of the document
     // into a temp file. Then phpcbf
     // will work on this file
@@ -214,6 +218,18 @@ class PHPCBF {
         })
       })
     })
+
+    if (this.debug) {
+      exec.stdout.on('data', buffer => {
+        console.debug('PHPCBF', 'DEBUG', 'LOG', buffer.toString())
+      })
+      exec.stderr.on('data', buffer => {
+        console.debug('PHPCBF', 'DEBUG', 'ERR', buffer.toString())
+      })
+      exec.on('close', () => {
+        console.timeEnd('phpcbf')
+      })
+    }
 
     return promise
   }

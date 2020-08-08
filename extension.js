@@ -14,14 +14,13 @@ const phpcbf = new PHPCBF(getPHPCBFConfiguration())
  * @returns {object}
  * */
 function getPHPCBFConfiguration () {
-  const documentURI = window.activeTextEditor.document.uri
+  const documentURI = window.activeTextEditor
+    ? window.activeTextEditor.document.uri
+    : ''
 
   const config = workspace.getConfiguration('phpcbf', documentURI)
 
-  const workspaceFolder = workspace.getWorkspaceFolder(documentURI)
-
-  return {
-    workspace: workspaceFolder,
+  const payload = {
     debug: config.get('debug', false),
     documentFormattingProvider: config.get('documentFormattingProvider', true),
     standard: config.get('standard', null),
@@ -33,6 +32,12 @@ function getPHPCBFConfiguration () {
     ),
     configSearch: config.get('configSearch', false)
   }
+
+  if (documentURI) {
+    payload.workspace = workspace.getWorkspaceFolder(documentURI)
+  }
+
+  return payload
 }
 
 /**
