@@ -5,8 +5,6 @@ const { commands, workspace, window, languages, Range, Position } = vscode
 const PHPCBF = require('./Phpcbf')
 const VSCODE_COMMAND = 'phpcbf-soderlind'
 
-// TODO
-// Check if break all
 const phpcbf = new PHPCBF()
 
 /**
