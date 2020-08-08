@@ -164,7 +164,7 @@ class PHPCBF {
    * @param {string} text
    * @returns {Promise <string>}
    * */
-  async format (text) {
+  format (text) {
     // Save content of the document
     // into a temp file. Then phpcbf
     // will work on this file
