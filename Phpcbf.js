@@ -75,13 +75,11 @@ class PHPCBF {
    * @returns {Array <string>}
    * */
   concatExecutableArguments (fileName) {
-    const args = [
+    return [
       this.debug ? '-l' : '-lq',
       fileName,
       this.standard ? `--standard=${this.standard}` : ''
     ]
-
-    return args
   }
 
   /**
@@ -90,15 +88,14 @@ class PHPCBF {
    * @param {string} documentURI The current file
    * */
   setStandard (documentURI) {
-    if (!documentURI) return false
-    if (!this.configSearch) return false
+    if (!documentURI || !this.configSearch) return
 
     // If configSearch attribute is set to true,
     // standard used by phpcbf will be replaced by custom config file
     // found
     const configFile = this.searchConfigFiles(documentURI)
 
-    this.standard = configFile || this.standard
+    if (configFile) this.standard = configFile
   }
 
   /**
