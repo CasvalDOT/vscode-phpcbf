@@ -1,11 +1,11 @@
 'use strict'
 
 const vscode = require('vscode')
-const { commands, workspace, window, languages, Range, Position } = vscode
 const PHPCBF = require('./Phpcbf')
 const VSCODE_COMMAND = 'phpcbf-soderlind'
 
 const phpcbf = new PHPCBF()
+const { commands, workspace, window, languages, Range, Position } = vscode
 
 /**
  * Check if current document is a php file
