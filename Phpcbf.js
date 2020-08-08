@@ -42,6 +42,12 @@ class PHPCBF {
     this.executablePath = options.executablePath
     this.configSearch = options.configSearch
 
+    if (this.executablePath.startsWith('{{workspaceFolder}}')) {
+      this.executablePath = this.executablePath.replace(
+        /{{workspaceFolder}}/,
+        options.workspace
+      )
+    }
     if (this.executablePath.startsWith('~')) {
       this.executablePath = this.executablePath.replace(
         /^~\//,
