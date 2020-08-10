@@ -16,6 +16,7 @@ const phpcbf = new PHPCBF({
   ...getPHPCBFConfiguration(),
   onError: message => {
     print('ERROR', message)
+    window.showErrorMessage(message)
   },
   onDebug: message => {
     print('DEBUG', message)

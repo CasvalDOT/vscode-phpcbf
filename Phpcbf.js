@@ -43,19 +43,19 @@ class PHPCBF {
    * */
   resolveExecutablePath (options) {
     let path = options.executablePath
+
+    if (path === 'phpcbf') {
+      //TODO !Find a way to resolve global binary
+    }
     if (path.startsWith('{{workspaceFolder}}')) {
       path = path.replace(/{{workspaceFolder}}/, options.workspace)
-    }
-
-    if (path.startsWith('./')) {
+    } else if (path.startsWith('./')) {
       path = path.replace(/\./, options.workspace)
       if (!options.workspace) {
         this.onDebug(ERR_PHPCBF_INVALID_WORKSPACE)
         path = 'phpcbf'
       }
-    }
-
-    if (path.startsWith('~')) {
+    } else if (path.startsWith('~')) {
       path = path.replace(/^~\//, os.homedir() + '/')
       if (!options.workspace) {
         this.onDebug(ERR_PHPCBF_INVALID_WORKSPACE)
@@ -63,11 +63,13 @@ class PHPCBF {
       }
     }
 
-    try {
-      fs.statSync(path)
-    } catch (e) {
-      this.onError(ERR_PHPCBF_BIN_ENOENT)
-      throw new Error(ERR_PHPCBF_BIN_ENOENT)
+    if (path !== 'phpcbf') {
+      try {
+        fs.statSync(path)
+      } catch (e) {
+        this.onError(ERR_PHPCBF_BIN_ENOENT + ': ' + path)
+        throw new Error(ERR_PHPCBF_BIN_ENOENT)
+      }
     }
 
     return path
