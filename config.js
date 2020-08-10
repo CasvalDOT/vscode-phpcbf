@@ -27,7 +27,10 @@ const PHPCBF_ERRORS = {
   ERR_PHPCBF_EXIT_CODE_32: 'Configuration error of a fixer',
   ERR_PHPCBF_EXIT_CODE_64: 'Exception raised within the application',
   ERR_PHPCBF_EXIT_CODE_UNDEFINED: 'An error unhadler occured',
-  ERR_PHPCBF_ENOENT: 'Executable path not found'
+  ERR_PHPCBF_ENOENT: 'Executable path not found',
+  ERR_PHPCBF_BIN_ENOENT: 'No such file phpcbf',
+  ERR_PHPCBF_INVALID_WORKSPACE:
+    'Workspace is invalid, try to use global binary of phpcbf'
 }
 
 const PHPCBF_NO_FIXABLE_ERRORS = 0

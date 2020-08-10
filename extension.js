@@ -27,7 +27,7 @@ const phpcbf = new PHPCBF({
  *
  * @returns {object}
  * */
-function getPHPCBFConfiguration () {
+function getPHPCBFConfiguration (options = {}) {
   const documentURI = window.activeTextEditor
     ? window.activeTextEditor.document.uri
     : ''
@@ -48,10 +48,13 @@ function getPHPCBFConfiguration () {
   }
 
   if (documentURI) {
-    payload.workspace = workspace.getWorkspaceFolder(documentURI)
+    const workspaceFolder = workspace.getWorkspaceFolder(documentURI)
+    payload.workspace = workspaceFolder
+      ? workspaceFolder.uri.fsPath
+      : documentURI.fsPath
   }
 
-  return payload
+  return { ...options, ...payload }
 }
 
 /**
@@ -105,7 +108,8 @@ function registerTextEditorCommand (event) {
  * Event handler when vscode configuration changes
  * */
 function onDidChangeConfiguration () {
-  phpcbf.setOptions(getPHPCBFConfiguration())
+  const options = phpcbf.getOptions()
+  phpcbf.setOptions(getPHPCBFConfiguration(options))
 }
 
 /**
@@ -116,7 +120,9 @@ function onDidChangeConfiguration () {
  * */
 async function provideDocumentFormattingEdits (document) {
   // If phpcbf is disabled stop the execution
-  if (!phpcbf.enable) return
+  if (!phpcbf.enable) {
+    return
+  }
 
   const originalText = document.getText()
   const lastLine = document.lineAt(document.lineCount - 1)

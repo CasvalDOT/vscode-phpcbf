@@ -19,7 +19,9 @@ const {
   ERR_PHPCBF_EXIT_CODE_32,
   ERR_PHPCBF_EXIT_CODE_64,
   ERR_PHPCBF_EXIT_CODE_UNDEFINED,
-  ERR_PHPCBF_ENOENT
+  ERR_PHPCBF_ENOENT,
+  ERR_PHPCBF_BIN_ENOENT,
+  ERR_PHPCBF_INVALID_WORKSPACE
 } = PHPCBF_ERRORS
 
 /**
@@ -45,8 +47,27 @@ class PHPCBF {
       path = path.replace(/{{workspaceFolder}}/, options.workspace)
     }
 
+    if (path.startsWith('./')) {
+      path = path.replace(/\./, options.workspace)
+      if (!options.workspace) {
+        this.onDebug(ERR_PHPCBF_INVALID_WORKSPACE)
+        path = 'phpcbf'
+      }
+    }
+
     if (path.startsWith('~')) {
       path = path.replace(/^~\//, os.homedir() + '/')
+      if (!options.workspace) {
+        this.onDebug(ERR_PHPCBF_INVALID_WORKSPACE)
+        path = 'phpcbf'
+      }
+    }
+
+    try {
+      fs.statSync(path)
+    } catch (e) {
+      this.onError(ERR_PHPCBF_BIN_ENOENT)
+      throw new Error(ERR_PHPCBF_BIN_ENOENT)
     }
 
     return path
@@ -66,6 +87,26 @@ class PHPCBF {
     this.standard = options.standard
     this.documentFormattingProvider = options.documentFormattingProvider
     this.debug = options.debug
+    this.workspace = options.workspace
+  }
+
+  /**
+   * Get options in use
+   *
+   * @returns {object} options
+   * */
+  getOptions () {
+    return {
+      enable: this.enable,
+      configFilenames: this.configFilenames,
+      onsave: this.onsave,
+      executablePath: this.executablePath,
+      configSearch: this.configSearch,
+      standard: this.standard,
+      documentFormattingProvider: this.documentFormattingProvider,
+      debug: this.debug,
+      workspace: this.workspace
+    }
   }
 
   /**
@@ -89,14 +130,18 @@ class PHPCBF {
    * @param {string} documentURI The current file
    * */
   setStandard (documentURI) {
-    if (!documentURI || !this.configSearch) return
+    if (!documentURI || !this.configSearch) {
+      return
+    }
 
     // If configSearch attribute is set to true,
     // standard used by phpcbf will be replaced by custom config file
     // found
     const configFile = this.searchConfigFiles(documentURI)
 
-    if (configFile) this.standard = configFile
+    if (configFile) {
+      this.standard = configFile
+    }
   }
 
   /**
@@ -122,7 +167,9 @@ class PHPCBF {
       folders.pop()
 
       // if current folder is empty skip it
-      if (!currentFolder) continue
+      if (!currentFolder) {
+        continue
+      }
 
       let matchs = []
       try {
